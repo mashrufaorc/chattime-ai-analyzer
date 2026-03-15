@@ -93,6 +93,12 @@ background:#f3f4f6;
 padding:12px;
 border-radius:10px;
 max-width:70%;
+margin-bottom:10px;
+}
+
+.message.user{
+margin-left:auto;
+background:#fce7f3;
 }
 
 .input-bar{
@@ -458,13 +464,15 @@ color:#4b5563;
 </div>
 
 <div class="chat">
+<div id="chatMessages">
 <div class="message">
 Alright! Here’s something fresh and fascinating: 🌱 Scientists just discovered a plant that glows faintly in the dark — naturally.
 </div>
 </div>
+</div>
 
 <div class="input-bar">
-<input placeholder="Send a message...">
+<input id="promptInput" placeholder="Type a prompt and press Enter...">
 </div>
 
 </div>
@@ -498,12 +506,12 @@ This dashboard summarizes how work in the current session may be distributed bet
 <div class="charts-grid">
 
 <div class="chart-card">
-<div class="chart-title">Repetitive Tasks — 41%</div>
+<div class="chart-title" id="titleRepetitive">Repetitive Tasks — --%</div>
 <canvas id="chart1"></canvas>
 </div>
 
 <div class="chart-card">
-<div class="chart-title">Information Retrieval — 19%</div>
+<div class="chart-title" id="titleInformation">Information Retrieval — --%</div>
 <canvas id="chart2"></canvas>
 </div>
 
@@ -514,17 +522,17 @@ This dashboard summarizes how work in the current session may be distributed bet
 <div class="charts-grid">
 
 <div class="chart-card">
-<div class="chart-title">Problem Solving — 17%</div>
+<div class="chart-title" id="titleProblemSolving">Problem Solving — --%</div>
 <canvas id="chart3"></canvas>
 </div>
 
 <div class="chart-card">
-<div class="chart-title">Critical Thinking — 13%</div>
+<div class="chart-title" id="titleCriticalThinking">Critical Thinking — --%</div>
 <canvas id="chart4"></canvas>
 </div>
 
 <div class="chart-card">
-<div class="chart-title">Creativity — 10%</div>
+<div class="chart-title" id="titleCreativity">Creativity — --%</div>
 <canvas id="chart5"></canvas>
 </div>
 
@@ -538,20 +546,20 @@ This dashboard summarizes how work in the current session may be distributed bet
 
 <div class="metric-box">
 <div class="metric-title">AI Automation Tasks</div>
-<div class="metric-value">60%</div>
+<div class="metric-value" id="automationValue">--%</div>
 <div class="metric-sub">Tasks primarily handled by AI</div>
 </div>
 
 <div class="metric-box">
 <div class="metric-title">Your Cognitive Tasks</div>
-<div class="metric-value">40%</div>
+<div class="metric-value" id="cognitiveValue">--%</div>
 <div class="metric-sub">Tasks driven by your reasoning and judgement</div>
 </div>
 
 <div class="metric-box">
 <div class="metric-title">Cognitive Offloading Index</div>
-<div class="metric-value">52 / 100</div>
-<div class="metric-sub">Risk Level: Moderate</div>
+<div class="metric-value" id="coiValue">-- / 100</div>
+<div class="metric-sub" id="riskLevel">Risk Level: --</div>
 </div>
 
 <div class="metric-box">
@@ -564,35 +572,7 @@ This dashboard summarizes how work in the current session may be distributed bet
 <th>Cognitive Level</th>
 </tr>
 
-<tr>
-<td>Repetitive Tasks</td>
-<td>41%</td>
-<td>Low</td>
-</tr>
-
-<tr>
-<td>Information Retrieval</td>
-<td>19%</td>
-<td>Low</td>
-</tr>
-
-<tr>
-<td>Problem Solving</td>
-<td>17%</td>
-<td>Medium</td>
-</tr>
-
-<tr>
-<td>Critical Thinking</td>
-<td>13%</td>
-<td>High</td>
-</tr>
-
-<tr>
-<td>Creativity</td>
-<td>10%</td>
-<td>Highest</td>
-</tr>
+<tbody id="distributionBody"></tbody>
 
 </table>
 
@@ -605,26 +585,18 @@ This dashboard summarizes how work in the current session may be distributed bet
 <div class="page" id="feedbackPage">
 
 <div class="feedback-block">
-<div class="feedback-title">Recommendation</div>
-<div class="feedback-text">
-You frequently use AI for reasoning and problem-solving tasks. Consider attempting an initial solution yourself before prompting AI for assistance.
-</div>
+<div class="feedback-title">What You Are Doing Now</div>
+<div class="feedback-text" id="feedbackCurrent">Run an analysis to see your current usage pattern.</div>
 </div>
 
 <div class="feedback-block">
-<div class="feedback-title">Suggested Actions</div>
-<div class="feedback-text">
-• Try outlining your reasoning before asking AI to generate a full answer.<br>
-• Use AI primarily for editing, summarizing, or refining ideas.<br>
-• Treat AI responses as reference points rather than final solutions.
-</div>
+<div class="feedback-title">What That Likely Means</div>
+<div class="feedback-text" id="feedbackMeaning">Your feedback meaning will appear after analysis.</div>
 </div>
 
 <div class="feedback-block">
-<div class="feedback-title">Why This Matters</div>
-<div class="feedback-text">
-Research in cognitive science suggests that frequent cognitive offloading to external tools can reduce engagement with memory and problem-solving processes. Monitoring AI usage helps ensure these tools support productivity without replacing core cognitive effort.
-</div>
+<div class="feedback-title">How To Improve Next Session</div>
+<div class="feedback-text" id="feedbackImprove">Personalized improvements will appear here.</div>
 </div>
 
 </div>
@@ -635,83 +607,259 @@ Research in cognitive science suggests that frequent cognitive offloading to ext
 
 <script>
 
-let charts={}
+const API_BASE_URL = window.CHATTIME_API_URL || "http://localhost:8000"
+const charts = {}
+const state = {sessionPrompts: []}
 
-function createPie(id,ai){
+const categoryOrder = [
+  "Repetitive",
+  "Information",
+  "Problem Solving",
+  "Critical Thinking",
+  "Creativity"
+]
 
-const you=100-ai
-const ctx=document.getElementById(id).getContext("2d")
-
-charts[id]=new Chart(ctx,{
-type:"pie",
-data:{
-labels:["You","AI"],
-datasets:[{
-data:[you,ai],
-backgroundColor:["#c08497","#9ca3af"],
-borderWidth:0
-}]
-},
-options:{
-maintainAspectRatio:true,
-plugins:{legend:{labels:{font:{size:11}}}}
+const categoryToChart = {
+  "Repetitive": "chart1",
+  "Information": "chart2",
+  "Problem Solving": "chart3",
+  "Critical Thinking": "chart4",
+  "Creativity": "chart5"
 }
+
+const categoryToTitle = {
+  "Repetitive": "titleRepetitive",
+  "Information": "titleInformation",
+  "Problem Solving": "titleProblemSolving",
+  "Critical Thinking": "titleCriticalThinking",
+  "Creativity": "titleCreativity"
+}
+
+const categoryToLevel = {
+  "Repetitive": "Low",
+  "Information": "Low",
+  "Problem Solving": "Medium",
+  "Critical Thinking": "High",
+  "Creativity": "Highest"
+}
+
+const backdrop = document.getElementById("panelBackdrop")
+const panel = document.getElementById("panel")
+const button = document.getElementById("openPanel")
+const promptInput = document.getElementById("promptInput")
+const chatMessages = document.getElementById("chatMessages")
+
+function escapeHtml(value){
+  const div = document.createElement("div")
+  div.textContent = value
+  return div.innerHTML
+}
+
+function createPie(id, ai){
+  const aiValue = Math.max(0, Math.min(100, Number(ai) || 0))
+  const you = Math.max(0, 100 - aiValue)
+  const ctx = document.getElementById(id).getContext("2d")
+
+  if(charts[id]){
+    charts[id].destroy()
+  }
+
+  charts[id] = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["You", "AI"],
+      datasets: [{
+        data: [you, aiValue],
+        backgroundColor: ["#c08497", "#9ca3af"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      maintainAspectRatio: true,
+      plugins: {legend: {labels: {font: {size: 11}}}}
+    }
+  })
+}
+
+function formatPercent(value){
+  return `${Number(value || 0).toFixed(1)}%`
+}
+
+function renderDistribution(percentages){
+  const body = document.getElementById("distributionBody")
+  body.innerHTML = categoryOrder.map((category)=>{
+    const label = category === "Information" ? "Information Retrieval" : category
+    return `
+      <tr>
+        <td>${label}</td>
+        <td>${formatPercent(percentages[category])}</td>
+        <td>${categoryToLevel[category]}</td>
+      </tr>
+    `
+  }).join("")
+}
+
+function renderFeedback(feedback){
+  const current = feedback?.current_behavior || "No analysis available yet."
+  const meaning = feedback?.likely_meaning || "No analysis available yet."
+  const actions = Array.isArray(feedback?.next_session_improvements) ? feedback.next_session_improvements : []
+  const improveText = actions.length
+    ? actions.map((item)=>`• ${escapeHtml(item)}`).join("<br>")
+    : "No analysis available yet."
+
+  document.getElementById("feedbackCurrent").textContent = current
+  document.getElementById("feedbackMeaning").textContent = meaning
+  document.getElementById("feedbackImprove").innerHTML = improveText
+}
+
+function renderAnalysis(data){
+  const percentages = data.percentages || {}
+
+  categoryOrder.forEach((category)=>{
+    const ai = Number(percentages[category] || 0)
+    createPie(categoryToChart[category], ai)
+
+    const label = category === "Information" ? "Information Retrieval" : category
+    const titleEl = document.getElementById(categoryToTitle[category])
+    titleEl.textContent = `${label} — ${formatPercent(ai)}`
+  })
+
+  document.getElementById("automationValue").textContent = formatPercent(data.automation_tasks)
+  document.getElementById("cognitiveValue").textContent = formatPercent(data.cognitive_tasks)
+  document.getElementById("coiValue").textContent = `${Number(data.coi || 0).toFixed(1)} / 100`
+  document.getElementById("riskLevel").textContent = `Risk Level: ${data.risk_level || "--"}`
+
+  renderDistribution(percentages)
+  renderFeedback(data.feedback || {})
+}
+
+function renderNoPromptState(){
+  renderAnalysis({
+    percentages: {
+      "Repetitive": 0,
+      "Information": 0,
+      "Problem Solving": 0,
+      "Critical Thinking": 0,
+      "Creativity": 0
+    },
+    automation_tasks: 0,
+    cognitive_tasks: 0,
+    coi: 0,
+    risk_level: "Add prompts to analyze",
+    feedback: {
+      current_behavior: "No user prompts found yet in this session.",
+      likely_meaning: "The engine needs at least one prompt to detect behavior patterns.",
+      next_session_improvements: [
+        "Type a real prompt in the chat input and press Enter.",
+        "Open Reliance again to run the feedback pipeline.",
+        "Compare this session over time as you add more prompts."
+      ]
+    }
+  })
+}
+
+async function fetchInsights(){
+  const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({prompts: state.sessionPrompts})
+  })
+
+  let payload = {}
+  try {
+    payload = await response.json()
+  } catch (_) {
+    payload = {}
+  }
+
+  if(!response.ok){
+    throw new Error(payload.error || "Failed to load feedback insights.")
+  }
+
+  return payload
+}
+
+async function runAnalysis(){
+  if(!state.sessionPrompts.length){
+    renderNoPromptState()
+    return
+  }
+
+  document.getElementById("feedbackCurrent").textContent = "Analyzing your current session behavior..."
+  document.getElementById("feedbackMeaning").textContent = "Detecting cognitive patterns and likely meaning..."
+  document.getElementById("feedbackImprove").textContent = "Generating personalized next-session improvements..."
+
+  try{
+    const analysis = await fetchInsights()
+    renderAnalysis(analysis)
+  }catch(error){
+    document.getElementById("feedbackCurrent").textContent = "Unable to load feedback."
+    document.getElementById("feedbackMeaning").textContent = error.message
+    document.getElementById("feedbackImprove").textContent = "Check that backend/server.py is running on port 8000."
+  }
+}
+
+function addPromptToSession(promptText){
+  const message = document.createElement("div")
+  message.className = "message user"
+  message.textContent = promptText
+  chatMessages.appendChild(message)
+  state.sessionPrompts.push(promptText)
+}
+
+promptInput.addEventListener("keydown", (event)=>{
+  if(event.key !== "Enter"){
+    return
+  }
+
+  event.preventDefault()
+  const value = promptInput.value.trim()
+  if(!value){
+    return
+  }
+
+  addPromptToSession(value)
+  promptInput.value = ""
 })
+
+button.onclick = async ()=>{
+  backdrop.style.display = "flex"
+  setTimeout(()=>panel.classList.add("open"), 10)
+  button.classList.add("active")
+  await runAnalysis()
 }
 
-function loadCharts(){
-
-createPie("chart1",41)
-createPie("chart2",19)
-createPie("chart3",17)
-createPie("chart4",13)
-createPie("chart5",10)
-
+document.getElementById("closePanel").onclick = ()=>{
+  panel.classList.remove("open")
+  button.classList.remove("active")
+  setTimeout(()=>backdrop.style.display = "none", 200)
 }
 
-const backdrop=document.getElementById("panelBackdrop")
-const panel=document.getElementById("panel")
-const button=document.getElementById("openPanel")
-
-button.onclick=()=>{
-backdrop.style.display="flex"
-setTimeout(()=>panel.classList.add("open"),10)
-button.classList.add("active")
-loadCharts()
+backdrop.onclick = (e)=>{
+  if(e.target === backdrop){
+    panel.classList.remove("open")
+    button.classList.remove("active")
+    setTimeout(()=>backdrop.style.display = "none", 200)
+  }
 }
 
-document.getElementById("closePanel").onclick=()=>{
-panel.classList.remove("open")
-button.classList.remove("active")
-setTimeout(()=>backdrop.style.display="none",200)
+const tabs = document.querySelectorAll(".tab")
+const pages = {
+  dashboard: document.getElementById("dashboardPage"),
+  metrics: document.getElementById("metricsPage"),
+  feedback: document.getElementById("feedbackPage")
 }
 
-backdrop.onclick=(e)=>{
-if(e.target===backdrop){
-panel.classList.remove("open")
-button.classList.remove("active")
-setTimeout(()=>backdrop.style.display="none",200)
-}
-}
-
-const tabs=document.querySelectorAll(".tab")
-const pages={
-dashboard:document.getElementById("dashboardPage"),
-metrics:document.getElementById("metricsPage"),
-feedback:document.getElementById("feedbackPage")
-}
-
-tabs.forEach(tab=>{
-tab.onclick=()=>{
-
-tabs.forEach(t=>t.classList.remove("active"))
-tab.classList.add("active")
-
-Object.values(pages).forEach(p=>p.classList.remove("active"))
-pages[tab.dataset.tab].classList.add("active")
-
-}
+tabs.forEach((tab)=>{
+  tab.onclick = ()=>{
+    tabs.forEach((item)=>item.classList.remove("active"))
+    tab.classList.add("active")
+    Object.values(pages).forEach((page)=>page.classList.remove("active"))
+    pages[tab.dataset.tab].classList.add("active")
+  }
 })
+
+renderNoPromptState()
 
 </script>
 
