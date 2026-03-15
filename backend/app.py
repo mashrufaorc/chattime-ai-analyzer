@@ -27,21 +27,13 @@ if st.button("Analyze Session"):
         results = compute_metrics(categories)
 
         st.subheader("Session Metrics")
-
         st.write(f"Total Prompts: {results['total']}")
-
         st.write(results["percentages"])
-
         st.subheader("Cognitive Offloading Index")
-
         st.metric("COI Score", f"{results['coi']:.1f}/100")
-
         st.subheader("Automation vs Cognitive Work")
-
         st.pyplot(results["chart"])
-
         st.subheader("AI Usage Insight")
-
         st.write(
         f"""
         Your session shows {results['coi']:.1f}% cognitive offloading.

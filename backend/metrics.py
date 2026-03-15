@@ -1,55 +1,54 @@
 import matplotlib.pyplot as plt
-from collections import Counter
 
 weights = {
     "Repetitive": 0.2,
-    "Information": 0.4,
+    "Information": 0.3,
     "Problem Solving": 0.7,
     "Critical Thinking": 0.9,
     "Creativity": 1.0
 }
 
-def compute_metrics(categories):
+def compute_metrics(results):
 
-    counts = Counter(categories)
-    total = len(categories)
+    totals = {
+        "Repetitive": 0,
+        "Information": 0,
+        "Problem Solving": 0,
+        "Critical Thinking": 0,
+        "Creativity": 0
+    }
 
-    repetitive = counts["Repetitive"]
-    information = counts["Information"]
-    problem = counts["Problem Solving"]
-    critical = counts["Critical Thinking"]
-    creativity = counts["Creativity"]
+    for r in results:
+        for k in totals:
+            totals[k] += r[k]
 
-    raw_score = (
-        repetitive * 0.2 +
-        information * 0.4 +
-        problem * 0.7 +
-        critical * 0.9 +
-        creativity * 1.0
-    )
+    total_prompts = len(results)
 
-    coi = (raw_score / total) * 100
+    percentages = {
+        k: totals[k] / total_prompts
+        for k in totals
+    }
 
-    automation = repetitive + information
-    thinking = problem + critical + creativity
+    raw_score = 0
+
+    for k in weights:
+        raw_score += totals[k] * weights[k] / 100
+
+    coi = (raw_score / total_prompts) * 100
+
+    automation = totals["Repetitive"] + totals["Information"]
+    thinking = totals["Problem Solving"] + totals["Critical Thinking"] + totals["Creativity"]
 
     fig, ax = plt.subplots()
+
     ax.pie(
         [automation, thinking],
         labels=["AI Automation Tasks", "Human Cognitive Tasks"],
         autopct="%1.1f%%"
     )
 
-    percentages = {
-        "Repetitive": repetitive / total * 100,
-        "Information": information / total * 100,
-        "Problem Solving": problem / total * 100,
-        "Critical Thinking": critical / total * 100,
-        "Creativity": creativity / total * 100,
-    }
-
     return {
-        "total": total,
+        "total": total_prompts,
         "coi": coi,
         "percentages": percentages,
         "chart": fig
