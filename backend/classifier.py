@@ -1,9 +1,7 @@
 from groq import Groq
+import os
 
-
-client = Groq(
-    base_url="https://openrouter.ai/api/v1"
-)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def classify_prompts(prompts):
 
@@ -25,16 +23,16 @@ def classify_prompts(prompts):
         """
 
         response = client.chat.completions.create(
-        extra_headers={
-            "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
-            "X-OpenRouter-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
-        },
-        extra_body={},
-        model="meta-llama/llama-3.3-70b-instruct:free",
+        # extra_headers={
+        #     "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
+        #     "X-OpenRouter-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
+        # },
+        # extra_body={},
+        model="openai/gpt-oss-120b",
         messages=[
             {
             "role": "user",
-            "content": {prompt}
+            "content": message
             }
         ]
         )

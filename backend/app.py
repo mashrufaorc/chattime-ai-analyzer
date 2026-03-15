@@ -40,13 +40,13 @@ if st.button("Analyze Session"):
 
         st.pyplot(results["chart"])
 
-st.subheader("AI Usage Insight")
+        st.subheader("AI Usage Insight")
 
-st.write(
-f"""
-Your session shows {results['coi']:.1f}% cognitive offloading.
+        st.write(
+        f"""
+        Your session shows {results['coi']:.1f}% cognitive offloading.
 
-Higher scores indicate greater reliance on AI for complex reasoning tasks.
-"""
-)
+        Higher scores indicate greater reliance on AI for complex reasoning tasks.
+        """
+        )
 
