@@ -23,7 +23,7 @@ We paste emails, ask for rewrites, request summaries, and rely on AI for tasks w
 - How much thinking are we delegating?
 - At what point does convenience become cognitive dependency?
 
-**ChatTime is a mirror for your AI habits.**
+ChatTime is a mirror for your AI habits.
 
 ---
 
