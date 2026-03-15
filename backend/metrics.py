@@ -44,7 +44,9 @@ def compute_metrics(results):
     ax.pie(
         [automation, thinking],
         labels=["AI Automation Tasks", "Human Cognitive Tasks"],
-        autopct="%1.1f%%"
+        autopct="%1.1f%%",
+        colors=["#BDBDBD", "#FF69B4"],  # grey AI, pink human
+
     )
 
     return {
