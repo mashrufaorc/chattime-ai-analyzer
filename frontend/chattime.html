@@ -24,6 +24,8 @@ display:flex;
 justify-content:center;
 }
 
+
+
 /* ---------- MAIN APP ---------- */
 
 .app{
@@ -106,6 +108,133 @@ border:1px solid #d1d5db;
 }
 
 /* ---------- PANEL ---------- */
+
+/* ---------- LEFT SIDEBAR (ChatGPT style) ---------- */
+
+.sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.sidebar-top {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.nav-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-item:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 20px 0 8px;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-bottom {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.profile-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.profile-info { flex: 1; }
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.profile-plan {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.upgrade-btn {
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.upgrade-btn:hover {
+  background: #000000;
+}
+
+/* SHIFT MAIN APP RIGHT */
+.app {
+  margin-left: 260px;
+}
 
 .panel-backdrop{
 position:fixed;
@@ -281,6 +410,42 @@ color:#4b5563;
 </head>
 
 <body>
+
+<!-- LEFT SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-title">ChatGPT</div>
+
+    <div class="nav-item">📝 New chat</div>
+    <div class="nav-item">🔍 Search</div>
+    <div class="nav-item">🖼️ Images</div>
+    <div class="nav-item">📱 Apps</div>
+    <div class="nav-item">🔬 Deep research</div>
+    <div class="nav-item">💻 Codex</div>
+    <div class="nav-item">📁 Projects</div>
+
+    <div class="sidebar-section-label">Your chats</div>
+
+    <div class="chat-list">
+      <div class="chat-item">Conservation genomics explained</div>
+      <div class="chat-item">Aquatic Biodiversity & Ecology</div>
+      <div class="chat-item">Urban wildlife patterns</div>
+      <div class="chat-item">Grant proposal draft</div>
+      <div class="chat-item">AI-assisted study notes</div>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="profile-block">
+      <div class="avatar">T</div>
+      <div class="profile-info">
+        <div class="profile-name">Teri maria</div>
+        <div class="profile-plan">Free plan</div>
+      </div>
+      <button class="upgrade-btn">Upgrade</button>
+    </div>
+  </div>
+</div>
 
 <div class="app">
 
