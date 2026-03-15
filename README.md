@@ -1,3 +1,6 @@
-# genaigenesis2026
+# ChatTime AI Analyzer Integrated application
 
-theresa testing
+run front end: ython3 -m http.server 3000 
+run backend:   EXPORT GROQ_API_KEY= ""
+               python3 app.py
+            
