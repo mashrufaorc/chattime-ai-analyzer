@@ -1,4 +1,4 @@
-# genaigenesis2026
+# ChatTime
 
 Absolutely — here’s a more polished, hackathon-style `README.md` that sounds stronger on GitHub and is better for recruiters, judges, and anyone visiting the repo.
 
