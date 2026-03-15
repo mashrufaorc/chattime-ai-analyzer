@@ -55,7 +55,6 @@ It then groups these into AI Automation Tasks vs Human Cognitive Tasks, computes
 - Insightful dependency analysis and recommendations
 - Streamlit-based interactive interface
 - Visualization layer for cognitive work distribution
-- Foundation for advanced feedback using A/B testing and cosine similarity
 
 ---
 
@@ -85,8 +84,6 @@ The ChatTime pipeline consists of the following stages:
 - Frontend / App Interface: Streamlit
 - Backend: Python
 - LLM Inference: Groq API
-- Cloud Integration: Google Cloud + Vertex AI
-- Feedback Methods: A/B testing, cosine similarity
 - Design Framework: Bloom’s Taxonomy / cognitive offloading principles
 
 ---
@@ -217,9 +214,7 @@ Future directions include:
 
 ## Demo
 
-```md
 [Watch the demo]: https://youtu.be/e-XvpDiv4WE
-```
 
 ---
 
